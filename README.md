@@ -11,15 +11,15 @@
   <br />
   <h2> Screenshots </h2>
   <b> Login </b>
-  <img src="https://raw.githubusercontent.com/cm3277/ComputrexMyAccounr/master/Screenshots/login.png" />
+  <img src="https://raw.githubusercontent.com/cm3277/ComputrexMyAccount/master/Screenshots/login.png" />
   <br />
   <b> PDF - Invoices </b>
-  <img src="https://raw.githubusercontent.com/cm3277/ComputrexWebBilling/master/Screenshots/invoicesPDF.png" />
+  <img src="https://raw.githubusercontent.com/cm3277/ComputrexMyAccount/master/Screenshots/invoicesPDF.png" />
   <br />
   <b> Invoice creation </b>
-  <img src="https://raw.githubusercontent.com/cm3277/ComputrexWebBilling/master/Screenshots/createInvoice.png" />
+  <img src="https://raw.githubusercontent.com/cm3277/ComputrexMyAccount/master/Screenshots/createInvoice.png" />
   <br />
   <b> User Accounts </b>
-  <img src="https://raw.githubusercontent.com/cm3277/ComputrexWebBilling/master/Screenshots/useraccounts.png" />
+  <img src="https://raw.githubusercontent.com/cm3277/ComputrexMyAccount/master/Screenshots/useraccounts.png" />
   
 
