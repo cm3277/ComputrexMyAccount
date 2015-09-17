@@ -1,0 +1,129 @@
+﻿@using WebBilling.ActiveDirectoryHelpers;
+@model IEnumerable<WebBilling.Models.Job>
+
+@{
+    ViewBag.Title = "Job Invoices";
+}
+
+<h2>Job Invoices</h2>
+
+<p>
+    
+    <table style="width: 90%; min-width: 630px;">
+        <tr>
+            <td>
+                <button class="btn btn-success sizedButton invoiceTableIndexBtn" onclick="location.href='@Url.Action("Create", "Jobs")';return false;">Create New</button>
+            </td>
+            <td>
+                @if (ViewBag.type == "current")
+                {
+                    @Html.ActionLink("Current", "Index", new { type = "current" }, new { @class = "a-InvoiceTypesSelected" });
+                }
+                else
+                {
+                    @Html.ActionLink("Current", "Index", new { type = "current" }, new { @class = "a-InvoiceTypes" });
+                }
+            </td>
+            <td>
+                @if (ViewBag.type == "tobebilled")
+                {
+                    @Html.ActionLink("To be billed", "Index", new { type = "tobebilled" }, new { @class = "a-InvoiceTypesSelected" })
+                }
+                else
+                {
+                    @Html.ActionLink("To be billed", "Index", new { type = "tobebilled" }, new { @class = "a-InvoiceTypes" })
+                }
+            </td>
+            <td>
+                @if (ViewBag.type == "archived")
+                {
+                    @Html.ActionLink("Archived", "Index", new { type = "archived" }, new { @class = "a-InvoiceTypesSelected" })
+                }
+                else
+                {
+                    @Html.ActionLink("Archived", "Index", new { type = "archived" }, new { @class = "a-InvoiceTypes" })
+                }
+            </td>
+        </tr>
+    </table>
+</p>
+<table class="invoiceTable1">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Customer.name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.startingTech)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.startTime)
+        </th>
+        @if (ViewBag.type != "current")
+        {
+            <th>
+                @Html.DisplayNameFor(model => model.endTime)
+            </th>
+            if (ViewBag.type == "archived" || ViewBag.type == "customer")
+            { 
+                <th>
+                    @Html.DisplayNameFor(model => model.totalPrice)
+                </th>
+            }
+        }
+        @if (ViewBag.type == "current" || ViewBag.type == "customer")
+        {
+            <th>
+                @Html.DisplayNameFor(model => model.inProgress)
+            </th>
+        }
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr class="invoiceTableIndexRow">
+        <td>
+            @Html.DisplayFor(modelItem => item.Customer.name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.startingTech)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.startTime)
+        </td>
+        @if (ViewBag.type != "current")
+        {
+            <td>
+                @Html.DisplayFor(modelItem => item.endTime)
+            </td>
+            if (ViewBag.type == "archived" || ViewBag.type == "customer")
+            { 
+                    <td>
+                        @Html.DisplayFor(modelItem => item.totalPrice)
+                    </td>
+            }
+        }
+        @if (ViewBag.type == "current" || ViewBag.type == "customer")
+        {
+            <td>
+                @Html.DisplayFor(modelItem => item.inProgress)
+            </td>
+        }
+        <td>
+            @if (!item.inProgress)
+            {
+                <button class="btn btn-success sizedButton" onclick="location.href='@Url.Action("BillInfo", "Jobs", new { id = item.ID, urlType = ViewBag.type })';return false;">Billing Info</button>
+            }
+
+            <button class="btn btn-info sizedButton" onclick="location.href='@Url.Action("Edit", "Jobs", new { id = item.ID })';return false;">Edit / View</button>
+
+            @if (LDAPHelper.UserIsMemberOfGroup("Admins") || LDAPHelper.UserIsMemberOfGroup("Boss")) 
+            {
+                @Html.Raw("| "); 
+                @Html.ActionLink("Delete", "Delete", new { id=item.ID }, new { @class = "a-admin" })
+            }
+            
+        </td>
+    </tr>
+}
+
+</table>

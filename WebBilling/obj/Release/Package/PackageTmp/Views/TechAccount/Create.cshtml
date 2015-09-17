@@ -1,0 +1,119 @@
+﻿@model WebBilling.Models.TechAccount
+
+@{
+    ViewBag.Title = "Create Account";
+}
+
+<h2>Create new account</h2>
+
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal text18Size">
+        <h4>TechAccount</h4>
+        <hr />
+        @Html.ValidationSummary(true)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.userName, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.userName)
+                @Html.ValidationMessageFor(model => model.userName)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.firstName, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.firstName)
+                @Html.ValidationMessageFor(model => model.firstName)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.lastName, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.lastName)
+                @Html.ValidationMessageFor(model => model.lastName)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.initials, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.initials)
+                @Html.ValidationMessageFor(model => model.initials)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Password", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.PasswordFor(model => model.hashPassword, new { @id = "firstPassword", @onchange = "checkPassword()" })
+                @Html.ValidationMessageFor(model => model.hashPassword)
+            </div>
+        </div>
+
+        <!--Password Double Check-->
+        <div class="form-group">
+            @Html.Label("Confirm password", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <input type="password" name="password" id="confirmPass" onchange="checkPassword()">
+            </div>
+        </div>
+
+        <div class="form-group hidden" id="passError">
+            @Html.Label(" ", new { @class = "control-label col-md-2" })
+            <div class="col-md-10" style="color: #ff0000">
+                Passwords do not match!
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.permissionGroup, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <select id="permissionGroup" name="permissionGroup">
+                    <option value=""></option>
+                    <option value="Boss">Boss</option>
+                    <option value="Admins">Admin</option>
+                    <option value="Techs">Tech</option>
+                </select>
+                @Html.ValidationMessageFor(model => model.permissionGroup)
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" id="submitBtn" class="btn btn-info sizedButton" disabled/>
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+<script>
+
+    function checkPassword()
+    {
+        if ( $('#firstPassword').val() == $('#confirmPass').val() )
+        {
+            $('#passError').addClass("hidden");
+            $('#submitBtn').prop('disabled', false);
+        }
+        else
+        {
+            $('#passError').removeClass("hidden");
+            $('#submitBtn').prop('disabled', true);
+        }
+    }
+
+</script>
+
+@section Scripts {
+@Scripts.Render("~/bundles/jqueryval")
+}

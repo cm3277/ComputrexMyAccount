@@ -1,0 +1,58 @@
+﻿@model WebBilling.Models.TechAccount
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>TechAccount</h4>
+	<hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.firstName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.firstName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.lastName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.lastName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.initials)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.initials)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.hashPassword)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.hashPassword)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.permissionGroup)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.permissionGroup)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.userName }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

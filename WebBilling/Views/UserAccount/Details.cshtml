@@ -1,0 +1,42 @@
+﻿@model WebInvoicing.Models.UserAccount
+
+@{
+    ViewBag.Title = "Account Details";
+}
+
+<h2>Account Details</h2>
+
+<div>
+	<hr />
+    <dl class="dl-horizontal text18Size">
+        <dt>
+            @Html.DisplayNameFor(model => model.userName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.userName)
+        </dd>
+        @if (Model.permissionGroup == "Customer")
+        {
+        <dt>
+            @Html.DisplayNameFor(model => model.hashPassword)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.hashPassword)
+        </dd>
+        }
+        <dt>
+            @Html.DisplayNameFor(model => model.permissionGroup)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.permissionGroup)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.userName }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

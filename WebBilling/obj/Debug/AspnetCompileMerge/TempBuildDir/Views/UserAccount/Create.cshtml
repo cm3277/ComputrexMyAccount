@@ -1,0 +1,86 @@
+﻿@model WebInvoicing.Models.UserAccount
+
+@{
+    ViewBag.Title = "Create User Account";
+}
+
+<h2>Create @ViewBag.type Account</h2>
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal text18Size">
+        
+        <hr />
+        @Html.ValidationSummary(true)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.userName, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.userName)
+                @Html.ValidationMessageFor(model => model.userName)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.hashPassword, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @if (ViewBag.type == "Admins")
+                { 
+                     @Html.PasswordFor(model => model.hashPassword, new { @id = "firstPassword", @oninput = "checkPassword()" })
+                    @Html.ValidationMessageFor(model => model.hashPassword)
+                }
+                else
+                {
+                    @Html.Raw("Password automatically generated.");
+                }
+            </div>
+        </div>
+
+        <!--Password Double Check-->
+        @if (ViewBag.type == "Admins")
+        { 
+            <div class="form-group">
+                @Html.Label("Confirm password", new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    <input type="password" name="password" id="confirmPass" oninput="checkPassword()">
+                </div>
+            </div>
+
+            <div class="form-group hidden" id="passError">
+                @Html.Label(" ", new { @class = "control-label col-md-2" })
+                <div class="col-md-10" style="color: #ff0000">
+                    Passwords do not match!
+                </div>
+            </div>
+        }
+        <input type="hidden" value="@ViewBag.type" id="permissionGroup" name="permissionGroup" />
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" id="submitBtn" value="Create" class="btn btn-info sizedButton" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+<script>
+
+    function checkPassword() {
+        if ($('#firstPassword').val() == $('#confirmPass').val()) {
+            $('#passError').addClass("hidden");
+            $('#submitBtn').prop('disabled', false);
+        }
+        else {
+            $('#passError').removeClass("hidden");
+            $('#submitBtn').prop('disabled', true);
+        }
+    }
+
+</script>
+

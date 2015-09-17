@@ -1,0 +1,197 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+/* Set width on the form input elements since they're 100% wide by default 
+input,
+select,
+textarea {
+    max-width: 280px;
+}*/
+
+/* 
+    ----------------------------------
+    Custom CSS 
+    ----------------------------------
+*/
+
+.col-md-10-custom {
+    width: 83.33333333333334%;
+    padding-top: 7px;
+  }
+
+.col-md-10-custom2 {
+    width: 83.33333333333334%;
+    padding-top: 11px;
+    margin-left: 50px;
+  }
+
+.col-md-10-custom-Half {
+    width: 45%;
+    padding-top: 7px;
+  }
+
+.w45-width {
+    width: 45%;
+    height: 100%;
+}
+
+.a-admin {
+  color: #187c16;
+  text-decoration: none;
+}
+
+.a-InvoiceTypes {
+  color: #2c3e50;
+  font-size: 24px;
+}
+
+.a-InvoiceTypesSelected {
+    font-size: 24px;
+}
+
+.form-horizontal .control-label-custom {
+    text-align: right;
+    padding-right: 20px;
+  }
+
+.invoiceTable1 {
+    width: 100%;
+    font-size: 18px;
+    min-width: 700px;
+}
+
+.invoiceEditTable {
+    width: 100%;
+    font-size: 18px;
+}
+
+.narrative-box {
+    background-color: #f6f6f6;
+    border-color: #000000;
+    width: 100%;
+    min-height: 150px;
+    min-width: 500px;
+    border: 2px solid #808080;
+    margin: 5px;
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+
+.narrative-buttonBox {
+    padding: 5px;
+    margin: 10px;
+    text-align: center;
+}
+
+.narrative-textarea {
+    margin: 10px;
+}
+
+.narLineList
+{
+    display: inline;
+    list-style-type: none;
+    padding-right: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+.partsNumbers {
+    max-width: 200px;
+}
+
+.partsError {
+    color: #ff0000;
+    text-align: center;
+}
+
+.sizedButton {
+    min-height: 50px;
+    min-width: 150px;
+}
+
+.invoiceTableIndexBtn {
+    margin: 15px;
+}
+
+.invoiceTableIndexRow > td {
+    padding-bottom: 1em;
+}
+
+.floatRightCls {
+    float: right;
+}
+
+.text18Size {
+    font-size: 18px;
+}
+.horlist li {
+    display: inline;
+    list-style-type: none;
+    padding-right: 20px;
+}
+
+.horlist2 {
+    margin: 0;
+padding: 0;
+list-style-type: none;
+}
+
+.horlist2 li {
+    display: inline-block;
+    vertical-align: text-top;
+}
+
+.lineClicked {
+    background-color: #d5dcde;
+}
+
+.editLineTextAlign {
+    vertical-align: text-top;
+}
+
+.lineOptionsBtn {
+    margin: 2px;
+    margin-left: 5px;
+    float: right;
+}
+
+.lineDeleteBtn {
+    margin: 2px;
+    float: left;
+}
+
+.enableEditBtn {
+    float: right;
+}
+
+.editText {
+    margin: 7px;
+    float: right;
+    color: #808080;
+}
+
+.lineTextEdit {
+    width: 100%;
+}
+
+.lineCancelBtn {
+    margin-left: 7px;
+}

@@ -1,0 +1,74 @@
+﻿@model WebInvoicing.Models.Invoices
+
+@{
+    ViewBag.Title = "Create Invoice";
+}
+
+<h2>Create Invoice</h2>
+
+@using (Html.BeginForm("Create", "Invoices", null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal text18Size">
+        <hr />
+        @Html.ValidationSummary(true)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.customerID, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("customerID", String.Empty)
+                @Html.ValidationMessageFor(model => model.customerID)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Invoice # or EOM", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.name)
+                @Html.ValidationMessageFor(model => model.name)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.paid, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.paid)
+                @Html.ValidationMessageFor(model => model.paid)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("PDF Invoice File", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <input type="file" id="pdfFile" name="upload" accept=".pdf" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.date, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <input class="text-box single-line datecontrol" data-val="true" data-val-date="The field Date must be a date." data-val-required="The Date field is required." id="date" name="date" value="" type="date">
+                @Html.ValidationMessageFor(model => model.date)
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-info sizedButton" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+<script src="js/bootstrap-datepicker.js"></script>
+<script type="text/javascript">
+    $(function () { // will trigger when the document is ready
+        $('.datecontrol').datepicker(); //Initialise any date pickers
+    });
+</script>
+

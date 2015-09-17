@@ -1,0 +1,56 @@
+﻿@model IEnumerable<WebInvoicing.Models.UserAccount>
+
+@{
+    ViewBag.Title = "User Accounts";
+}
+
+<h2>User Accounts</h2>
+
+<p>
+    @if (LDAPHelper.UserIsMemberOfGroup("Boss"))
+    {
+        <button class="btn btn-success sizedButton invoiceTableIndexBtn" onclick="location.href='@Url.Action("Create", "UserAccount", new { type = "Admins" })';return false;">Create New Admin</button>
+    }
+    
+        <button class="btn btn-success sizedButton invoiceTableIndexBtn" onclick="location.href='@Url.Action("Create", "UserAccount", new { type = "Customer" })';return false;">Create New Customer</button>
+</p>
+<table class="table text18Size" style="min-width: 700px;">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.userName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.permissionGroup)
+        </th>
+        <th>
+            Invoices
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.userName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.permissionGroup)
+        </td>
+        <td>
+            @if(item.permissionGroup == "Customer")
+            { 
+                @Html.ActionLink("View Invoices", "Index", "Invoices", new { account = item.userName }, new { })
+            }
+        </td>
+        <td>
+        @if (LDAPHelper.UserIsMemberOfGroup("Boss") || item.permissionGroup == "Customer")
+        { 
+            @Html.ActionLink("Edit", "Edit", new { id=item.userName }) @Html.Raw("|");
+            @Html.ActionLink("Details", "Details", new { id=item.userName }) @Html.Raw("|");
+            @Html.ActionLink("Delete", "Delete", new { id=item.userName })
+        }
+        </td>
+    </tr>
+}
+
+</table>

@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computrex Web Billing - @ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+</head>
+<body>
+    <div class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Computrex - Web Billing", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Job Invoices", "Index", "Jobs")</li>
+                    <li>@Html.ActionLink("Customers", "Index", "Customers")</li>
+                    @if (LDAPHelper.UserIsMemberOfGroup("Admins") || LDAPHelper.UserIsMemberOfGroup("Boss"))
+                    {
+                        <li>@Html.ActionLink("Parts", "Index", "Parts")</li>
+                        <li>@Html.ActionLink("Tolerances", "Index", "Tolerances")</li>
+                    }
+                    @if (LDAPHelper.UserIsMemberOfGroup("Boss"))
+                    {
+                        <li>@Html.ActionLink("User Accounts", "Index", "TechAccount")</li>
+                    }
+                </ul>
+                @Html.Partial("_LoginPartial")
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - Computrex Computers & Electronics</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+
+    <script type="text/javascript" src="@Url.Content("~/Scripts/PreventDuplicates.js")"></script>
+</body>
+</html>

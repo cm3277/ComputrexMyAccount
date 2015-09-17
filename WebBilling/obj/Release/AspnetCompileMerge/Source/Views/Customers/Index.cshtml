@@ -1,0 +1,48 @@
+﻿@model IEnumerable<WebBilling.Models.Customer>
+
+@{
+    ViewBag.Title = "Customers";
+}
+
+<h2>Customers</h2>
+
+<p>
+    <button class="btn btn-success sizedButton invoiceTableIndexBtn" onclick="location.href='@Url.Action("Create", "Customers")';return false;">Create New</button>
+</p>
+<table class="invoiceTable1">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.businessPricing)
+        </th>
+        <th>
+            Invoices
+        </th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr class="invoiceTableIndexRow">
+        <td>
+            @Html.DisplayFor(modelItem => item.name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.businessPricing)
+        </td>
+        <td>
+            @Html.ActionLink("View Invoices", "Index", "jobs", new { type = "customer", customerName = item.name }, null)
+        </td>
+        <td>
+            @if (LDAPHelper.UserIsMemberOfGroup("Admins") || LDAPHelper.UserIsMemberOfGroup("Boss"))
+            {
+                <button class="btn btn-info sizedButton" onclick="location.href='@Url.Action("Edit", "Customers", new { id = item.ID })';return false;">Edit</button>
+            
+                @Html.Raw("| ");
+                @Html.ActionLink("Delete", "Delete", new { id = item.ID }, new { @class = "a-admin" })
+            }
+        </td>
+    </tr>
+}
+
+</table>

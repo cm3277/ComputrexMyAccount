@@ -1,0 +1,895 @@
+﻿@using WebBilling.Models;
+
+@model WebBilling.Models.Job
+
+@{
+    ViewBag.Title = "Edit Invoice";
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+<style>
+    @if (Model.inProgress)
+    {
+        @Html.Raw(".invoiceEditTableWidth { min-width: 500px; }");
+    }
+    else
+    {
+        @Html.Raw(".invoiceEditTableWidth { min-width: 800px; }");
+    }
+</style>
+
+<h3>Edit Job Invoice</h3>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h1>@Html.DisplayFor(model => model.Customer.name)</h1>
+        <hr />
+        @Html.ValidationSummary(true)
+        @Html.HiddenFor(model => model.ID)
+
+
+       <table class="invoiceEditTable invoiceEditTableWidth">
+            <tr>
+                <td>
+                    <div>
+                        @Html.LabelFor(model => model.startingTech, new { @class = "control-label-custom" })
+
+                        @Html.DisplayFor(model => model.startingTech)
+
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        @Html.LabelFor(model => model.startTime, new { @class = "control-label-custom" })
+
+                            @Html.DisplayFor(model => model.startTime)
+
+                    </div>
+                </td>
+                <td>
+                    @if (!Model.inProgress)
+                    {
+                        <div>
+                            @Html.LabelFor(model => model.endTime, new { @class = "control-label-custom" })
+
+                                @Html.DisplayFor(model => model.endTime)
+                        </div>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Customer.businessPricing, new { @class = "control-label-custom" })
+
+                            @Html.DisplayFor(model => model.Customer.businessPricing)
+
+                    </div>
+                </td>
+
+                <td>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.inProgress, new { @class = "control-label-custom" })
+
+                            @Html.DisplayFor(model => model.inProgress)
+
+                    </div>
+                </td>
+                <td>
+                    @if (!Model.inProgress)
+                    {
+                        <div>
+                            @Html.LabelFor(model => model.totalPrice, new { @class = "control-label-custom" })
+
+                                @Html.DisplayFor(model => model.totalPrice)
+                        </div>
+                    }
+                </td>
+            </tr>
+        </table>
+        @if (Model.inProgress || LDAPHelper.UserIsMemberOfGroup("Admins") || LDAPHelper.UserIsMemberOfGroup("Boss"))
+        {
+            <div class="invoiceEditTableWidth">
+                <input type="button" id="narEnableEditBtn" value="Enable line editing" class="btn btn-primary enableEditBtn sizedButton" onclick="onEditingClick(this);">
+            </div>
+            <div class="editText hidden" id="EditTextHint">
+                Select a line
+            </div>
+        }
+        <h3>Narrative</h3>
+
+        <div class="narrative-box">
+            <ul id="narList">
+                @foreach (NarrationLine narLine in Model.narrationLines)
+                {
+                    <li id="narLineLI-@narLine.ID" onclick="onLineClick(@narLine.ID, '#nar');">
+                        <ul class="horlist2" >
+                            <li id="narLineText-@narLine.ID">
+                                <div id="narLineTextHolder-@narLine.ID">
+                                    @narLine.line
+                                </div>
+                                <div class="hidden" id="narLineTextEdit-@narLine.ID" >
+                                    <table style="width: 90%; margin-left: 30px; text-align: center">
+                                        <tr>
+                                            <td style="width: 70%">
+                                                <div class="narrative-textarea">
+                                                    <textarea class="form-control" rows="3" id="narLineTextArea-@narLine.ID"> @narLine.line </textarea>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="button" value="Save line" class="btn btn-info sizedButton" onclick="SaveEditedNarLineBtn(@narLine.ID);">
+                                            </td>
+                                            <td>
+                                                <input type="button" value="Cancel" class="btn btn-warning sizedButton lineCancelBtn" onclick="onCancelSaveLineClick(@narLine.ID, '#nar');">
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </li>
+                            <li class="hidden floatRightCls" id="narLineOptions2-@narLine.ID">
+                                <input type="button" value="Delete line" class="btn btn-warning lineDeleteBtn" onclick="onDeleteLineBtnClick(@narLine.ID, '#nar');">
+                            </li>
+                            <li class="hidden floatRightCls" id="narLineOptions-@narLine.ID">
+                                <input type="button" value="Edit line" class="btn btn-info lineOptionsBtn" onclick="onEditLineClick(@narLine.ID, '#nar');">
+                            </li>
+                            <li class="hidden floatRightCls" id="narLineDeleteOptions-@narLine.ID">
+                                <input type="button" value="Cancel" class="btn btn-warning lineDeleteBtn" onclick="onDeleteCancelBtnClick(@narLine.ID, '#nar');">
+                            </li>
+                            <li class="hidden floatRightCls" id="narLineDeleteOptions2-@narLine.ID">
+                                <input type="button" value="Confirm delete" class="btn btn-info lineOptionsBtn" onclick="ConfirmDeleteNarLineBtn(@narLine.ID);">
+                            </li>
+                        </ul>
+                    </li>
+                }
+            </ul>
+            <div id="AddLineGroup" class="hidden">
+                <table style="width: 90%; margin-left: 30px; text-align: center">
+                    <tr>
+                        <td style="width: 85%;">
+                            <div class="narrative-textarea">
+                                <textarea class="form-control" rows="3" id="narLineTextArea"></textarea>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="button" value="Save line" class="btn btn-info sizedButton" onclick="SaveLineBtn()">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            @if (Model.inProgress || LDAPHelper.UserIsMemberOfGroup("Admins") || LDAPHelper.UserIsMemberOfGroup("Boss"))
+            {
+                <div class="narrative-buttonBox">
+                    <input type="button" value="Add line" class="btn btn-success sizedButton" id="narAddLineBtn" onclick="narAddlineBtn()" />
+                    <input type="button" id="narEnableEditBtn" value="Enable editing" class="btn btn-primary enableEditBtn sizedButton hidden" onclick="onEditingClick(this, '#nar');">
+                    <div class="editText hidden" id="narEditText">
+                        Select a line
+                    </div>
+                </div>
+            }
+        </div>
+
+        <h3>Tech Notes</h3>
+
+        <div class="narrative-box">
+            <ul id="techList">
+                @foreach (TechNotesLine tnotesLine in Model.techNotesLines)
+                {
+                    <li id="techLineLI-@tnotesLine.ID" onclick="onLineClick(@tnotesLine.ID, '#tech');">
+                        <ul class="horlist2" >
+                            <li id="techLineText-@tnotesLine.ID">
+                                <div id="techLineTextHolder-@tnotesLine.ID">
+                                    @tnotesLine.line
+                                </div>
+                                <div class="hidden" id="techLineTextEdit-@tnotesLine.ID" >
+                                    <table style="width: 90%; margin-left: 30px; text-align: center">
+                                        <tr>
+                                            <td style="width: 70%">
+                                                <div class="narrative-textarea">
+                                                    <textarea class="form-control" rows="3" id="techLineTextArea-@tnotesLine.ID"> @tnotesLine.line </textarea>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="button" value="Save line" class="btn btn-info sizedButton" onclick="SaveEditedTechLineBtn(@tnotesLine.ID);">
+                                            </td>
+                                            <td>
+                                                <input type="button" value="Cancel" class="btn btn-warning sizedButton lineCancelBtn" onclick="onCancelSaveLineClick(@tnotesLine.ID, '#tech');">
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </li>
+                            <li class="hidden floatRightCls" id="techLineOptions2-@tnotesLine.ID">
+                                <input type="button" value="Delete line" class="btn btn-warning lineDeleteBtn" onclick="onDeleteLineBtnClick(@tnotesLine.ID, '#tech');">
+                            </li>
+                            <li class="hidden floatRightCls" id="techLineOptions-@tnotesLine.ID">
+                                <input type="button" value="Edit line" class="btn btn-info lineOptionsBtn" onclick="onEditLineClick(@tnotesLine.ID, '#tech');">
+                            </li>
+                            <li class="hidden floatRightCls" id="techLineDeleteOptions-@tnotesLine.ID">
+                                <input type="button" value="Cancel" class="btn btn-warning lineDeleteBtn" onclick="onDeleteCancelBtnClick(@tnotesLine.ID, '#tech');">
+                            </li>
+                            <li class="hidden floatRightCls" id="techLineDeleteOptions2-@tnotesLine.ID">
+                                <input type="button" value="Confirm delete" class="btn btn-info lineOptionsBtn" onclick="ConfirmDeleteTechLineBtn(@tnotesLine.ID);">
+                            </li>
+                        </ul>
+                    </li>
+                }
+            </ul>
+            <div id="AddTNotesLineGroup" class="hidden">
+                <table style="width: 90%; margin-left: 30px; text-align: center">
+                    <tr>
+                        <td style="width: 85%;">
+                            <div class="narrative-textarea">
+                                <textarea class="form-control" rows="3" id="techLineTextArea"></textarea>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="button" value="Save line" class="btn btn-info sizedButton" onclick="SaveTechLineBtn()">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            @if (Model.inProgress || LDAPHelper.UserIsMemberOfGroup("Admins") || LDAPHelper.UserIsMemberOfGroup("Boss"))
+            {
+                <div class="narrative-buttonBox">
+                    <input type="button" value="Add line" class="btn btn-success sizedButton" id="techAddLineBtn" onclick="tNotesAddlineBtn()" />
+                    <input type="button" id="techEnableEditBtn" value="Enable editing" class="btn btn-primary enableEditBtn sizedButton hidden" onclick="onEditingClick(this, '#tech');">
+                    <div class="editText hidden" id="techEditText">
+                        Select a line
+                    </div>
+                </div>
+            }
+        </div>
+
+        <h3>Parts List</h3>
+
+        <div class="narrative-box">
+            <table id="partsTable" style="width: 95%; margin-left: 20px;">
+                <tr style="font-weight: bold">
+                    <td>Description</td>
+                    <td>Quantity</td>
+                    <td>Total Price</td>
+                </tr>
+                @foreach (Parts part in Model.parts)
+                {
+                    <tr style="text-indent: 1em;" id="partTextGroup-@part.ID" onclick="onPartLineClick(@part.ID);">
+                        <td>@part.description</td>
+                        <td>@part.quantity</td>
+                        <td>@part.purchasedPrice</td>
+                        <td class="hidden floatRightCls" id="partLineOptions-@part.ID">
+                            <input type="button" value="Delete line" class="btn btn-warning lineDeleteBtn" onclick="onDeletePartBtnClick(@part.ID);">
+                        </td>
+                        <td class="hidden floatRightCls" id="partLineDeleteOptions-@part.ID">
+                            <input type="button" value="Cancel" class="btn btn-warning lineDeleteBtn" onclick="onDeletePartCancelBtnClick();">
+                        </td>
+                        <td class="hidden floatRightCls" id="partLineDeleteOptions2-@part.ID">
+                            <input type="button" value="Confirm delete" class="btn btn-info lineOptionsBtn" onclick="ConfirmDeletePartLineBtn(@part.ID);">
+                        </td>
+                    </tr>
+                }
+            <!--</table>
+            <div id="AddPartsGroup" class="hidden">
+                <table style="width: 90%; margin-left: 20px; text-align: center;">-->
+                <tr id="AddPartsGroup" class="hidden">
+                    <td>
+                        <div class="narrative-textarea">
+                            <textarea class="form-control" rows="1" id="partsDescriptionTextArea"></textarea>
+                        </div>
+                    </td>
+                    <td>
+                        <input class="form-control text-box single-line input-validation-error partsNumbers" data-val="true"
+                               data-val-number="The field quantity must be a number." data-val-required="The quantity field is required."
+                               id="PartsQuantity" name="quantity" value="" type="number">
+                    </td>
+                    <td>
+                        <input class="form-control text-box single-line input-validation-error partsNumbers" data-val="true"
+                               data-val-number="The field Original Price must be a number." data-val-required="The original price field is required."
+                               id="PartsPrice" name="Original Price" value="" type="number">
+                    </td>
+                    <td>
+                        <input type="button" value="Save part" class="btn btn-info sizedButton" onclick="SavePartBtn()">
+                    </td>
+                </tr>
+                </table>
+                <div class="hidden" id="PartsErrorBox">
+                </div>
+            <!--</div>-->
+            @if (Model.inProgress || LDAPHelper.UserIsMemberOfGroup("Admins") || LDAPHelper.UserIsMemberOfGroup("Boss"))
+            {
+                <div class="narrative-buttonBox">
+                    <input type="button" value="Add part" class="btn btn-success sizedButton" id="partsAddLineBtn" onclick="partsAddlineBtn()" />
+                    <input type="button" id="partEnableEditBtn" value="Enable editing" class="btn btn-primary enableEditBtn sizedButton hidden" onclick="onPartEditingClick(this);">
+                    <div class="editText hidden" id="partEditText">
+                        Select a line
+                    </div>
+                </div>
+            }
+
+        </div>
+
+@if (Model.inProgress || Model.billingNotes != null)
+       {
+            <h3>Notes to Billing Supervisor</h3>
+            if (!Model.inProgress && Model.billingNotes != null)
+            {
+            <div class="narrative-box">
+                    <textarea rows="3" style="width: 90%; margin: 15px; font-size: 16px;" id="notesToBiller" disabled >@Model.billingNotes</textarea>
+                </div>
+            }
+       }
+
+            @if (Model.inProgress)
+        {
+            <div class="narrative-box hidden" id="notesToBiller">
+                <textarea rows="3" style="width: 90%; margin: 15px; font-size: 16px;" id="notesToBiller" ></textarea>
+            </div>
+            <input type="button" id="notesToBillerBtn" value="Show" class="btn btn-primary sizedButton" style="margin-bottom: 20px;" onclick="onNotesToBillerClick(this);">
+                
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <button id="FinishBtn" class="btn btn-info sizedButton floatRightCls" onclick="finishBtn();return false;">Finish Job Invoice</button>
+                    </div>
+                </div>
+        }
+
+            <div class="text18Size floatRightCls hidden" id="ConfirmSubmit">
+                <b>Are you sure you want to submit this job invoice?</b>
+                <ul class="horlist invoiceTableIndexBtn">
+                    <li>
+                        <button class="btn btn-info sizedButton" onclick="confirmFinish();return false;">Yes</button>
+                    </li>
+                    <li>
+                        <button class="btn btn-warning sizedButton" onclick="cancelFinish();return false;">No</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+}
+
+<div>
+    @if(!Model.inProgress && !Model.wasBilled)
+    {
+        @Html.ActionLink("Back to List", "Index", new { type = "tobebilled" })
+    }
+    else if (!Model.inProgress && Model.wasBilled)
+    {
+        @Html.ActionLink("Back to List", "Index", new { type = "archived" })
+    }
+    else
+    {
+         @Html.ActionLink("Back to List", "Index")
+    }
+</div>
+
+<script>
+
+    function onNotesToBillerClick(btn)
+    {
+        if ($(btn).val() == "Show")
+        {
+            $('#notesToBiller').removeClass("hidden");
+            $(btn).val("Hide");
+        }
+        else
+        {
+            $('#notesToBiller').addClass("hidden");
+            $(btn).val("Show");
+        }
+    }
+
+    function onDeletePartBtnClick(lineID)
+    {
+        //disable being able to click on other lines
+        window.partEditing = false;
+        var optionsGroup = '#partLineOptions-' + window.partlineID;
+        $(optionsGroup).addClass("hidden");
+
+        var doptionsGroup = '#partLineDeleteOptions-' + partlineID;
+        var doptionsGroup2 = '#partLineDeleteOptions2-' + partlineID;
+        $(doptionsGroup).removeClass("hidden");
+        $(doptionsGroup2).removeClass("hidden");
+    }
+
+    function onDeleteLineBtnClick(lineID, IDString)
+    {
+        //disable being able to click on other lines
+        if (IDString == "#nar")
+            window.narEditing = false;
+        else if (IDString == "#tech")
+            window.techEditing = false;
+        var optionsGroup = IDString + 'LineOptions-' + lineID;
+        var optionsGroup2 = IDString + 'LineOptions2-' + lineID;
+        $(optionsGroup).addClass("hidden");
+        $(optionsGroup2).addClass("hidden");
+
+        var optionsGroup = IDString + 'LineDeleteOptions-' + lineID;
+        var optionsGroup2 = IDString + 'LineDeleteOptions2-' + lineID;
+        $(optionsGroup).removeClass("hidden");
+        $(optionsGroup2).removeClass("hidden");
+    }
+
+    function onDeleteCancelBtnClick(lineID, IDString)
+    {
+        if (IDString == "#nar")
+            window.narEditing = true;
+        else if (IDString == "#tech")
+            window.techEditing = true;
+        disableLineEditOptions(IDString);
+    }
+
+    function onDeletePartCancelBtnClick()
+    {
+        window.partEditing = true;
+        disablePartLineEditOptions();
+    }
+
+    function onCancelSaveLineClick(lineID, IDString)
+    {
+        window.lineTextEditing = false;
+        var textLIGroup = IDString + "LineText-" + lineID;
+        var textEditGroup = IDString + "LineTextEdit-" + lineID;
+        var textHolderGroup = IDString + "LineTextHolder-" + lineID;
+        var textArea = IDString + "LineTextArea-" + lineID;
+        $(textEditGroup).addClass("hidden");
+        $(textHolderGroup).removeClass("hidden");
+        $(textLIGroup).removeClass("lineTextEdit");
+        $(textArea).val($(textHolderGroup).text().trim());
+        if (IDString == "#nar")
+            window.narEditing = true;
+        else if (IDString == "#tech")
+            window.techEditing = true;
+    }
+
+    function onEditLineClick(lineID, IDString)
+    {
+        window.lineTextEditing = true;
+        var textLIGroup = IDString + "LineText-" + lineID;
+        var textEditGroup = IDString + "LineTextEdit-" + lineID;
+        var textHolderGroup = IDString + "LineTextHolder-" + lineID;
+        $(textEditGroup).removeClass("hidden");
+        $(textHolderGroup).addClass("hidden");
+        $(textLIGroup).addClass("lineTextEdit");
+        //disable being able to click on other lines
+        if (IDString == "#nar")
+            window.narEditing = false;
+        else if (IDString == "#tech")
+            window.techEditing = false;
+        disableLineEditOptions(IDString);
+        if (IDString == "#nar")
+            window.narlineID2 = lineID;
+        else if (IDString == "#tech")
+            window.techlineID2 = lineID;
+    }
+
+    function onEditingClick(editBtn)
+    {
+        if ($(editBtn).val() == "Enable line editing")
+        {
+            
+            window.partEditing = true;
+
+            
+                window.narEditing = true;
+                
+                window.techEditing = true;
+            
+            $(editBtn).val("Disable line editing");
+            $('#EditTextHint').removeClass("hidden");
+        }
+        else
+        {
+            $(editBtn).val("Enable line editing");
+            $('#EditTextHint').addClass("hidden");
+            if (window.lineTextEditing) {
+                onCancelSaveLineClick(window.narlineID2, "#nar");
+                onCancelSaveLineClick(window.techlineID2, "#tech");
+            }
+            
+                window.narEditing = false;
+            
+                window.techEditing = false;
+                if (window.narlineID != null) {
+                    disableLineEditOptions("#nar");
+                }
+                if (window.techlineID != null)
+                {
+                    disableLineEditOptions("#tech");
+                }
+            if (window.partlineID)
+            {
+                disablePartLineEditOptions();
+            }
+            window.partEditing = false;
+        }
+    }
+
+    function disableLineEditOptions(IDString)
+    {
+        var lineID = null;
+        if (IDString == "#nar")
+            lineID = window.narlineID;
+        else if (IDString == "#tech")
+            lineID = window.techlineID;
+        var lineTextGroup = IDString + 'LineText-' + lineID;
+        $(lineTextGroup).removeClass("lineClicked");
+        var optionsGroup = IDString + 'LineOptions-' + lineID;
+        var optionsGroup2 = IDString + 'LineOptions2-' + lineID;
+        $(optionsGroup).addClass("hidden");
+        $(optionsGroup2).addClass("hidden");
+
+        var doptionsGroup = IDString + 'LineDeleteOptions-' + lineID;
+        var doptionsGroup2 = IDString + 'LineDeleteOptions2-' + lineID;
+        $(doptionsGroup).addClass("hidden");
+        $(doptionsGroup2).addClass("hidden");
+        if (IDString == "#nar")
+            window.narlineID = null;
+        else if (IDString == "#tech")
+            window.techlineID = null;
+    }
+
+    function disablePartLineEditOptions()
+    {
+        var lineTextGroup = '#partTextGroup-' + window.partlineID;
+        $(lineTextGroup).removeClass("lineClicked");
+        var optionsGroup = '#partLineOptions-' + window.partlineID;
+        $(optionsGroup).addClass("hidden");
+
+        var doptionsGroup = '#partLineDeleteOptions-' + partlineID;
+        var doptionsGroup2 = '#partLineDeleteOptions2-' + partlineID;
+        $(doptionsGroup).addClass("hidden");
+        $(doptionsGroup2).addClass("hidden");
+        window.partlineID = null;
+    }
+
+    function onLineClick(lineID, IDString) {
+        //editing must be enabled
+        if (!window.narEditing && IDString == "#nar")
+            return;
+        if (!window.techEditing && IDString == "#tech")
+            return;
+        //make sure any others are not selected rn
+        if (IDString == "#nar" && window.narlineID != null) {
+            disableLineEditOptions("#nar");
+        }
+        else if (IDString == "#tech" && window.techlineID != null) {
+            disableLineEditOptions("#tech");
+        }
+        else {
+            if (IDString == "#nar")
+                window.narlineID = lineID;
+            else if (IDString == "#tech")
+                window.techlineID = lineID;
+            var lineTextGroup = IDString + 'LineText-' + lineID;
+            $(lineTextGroup).addClass("lineClicked");
+            var optionsGroup = IDString + 'LineOptions-' + lineID;
+            var optionsGroup2 = IDString + 'LineOptions2-' + lineID;
+            $(optionsGroup).removeClass("hidden");
+            $(optionsGroup2).removeClass("hidden");
+        }
+    }
+
+    function onPartLineClick(lineID)
+    {
+        //editing must be enabled
+        if (!window.partEditing)
+            return;
+        //make sure any others are not selected rn
+        if (window.partlineID != null) {
+            disablePartLineEditOptions();
+        }
+        else {
+            window.partlineID = lineID;
+            var lineTextGroup = '#partTextGroup-' + window.partlineID;
+            $(lineTextGroup).addClass("lineClicked");
+            var optionsGroup = '#partLineOptions-' + window.partlineID;
+            $(optionsGroup).removeClass("hidden");
+        }
+    }
+
+    function finishBtn() {
+        $('#ConfirmSubmit').removeClass("hidden");
+        $('#FinishBtn').hide();
+    }
+
+    function confirmFinish() {
+        $.ajax({
+            url: '@Url.Action("FinishJobInvoice", "jobs")',
+            type: 'POST',
+            dataType: "json",
+            data: { jobID: '@Model.ID', billNotes: $('#notesToBiller').val() },
+            success: function (data) {
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
+            }
+        });
+    }
+
+    function cancelFinish() {
+        $('#ConfirmSubmit').addClass("hidden");
+        $('#FinishBtn').show();
+    }
+
+    function narAddlineBtn() {
+        var addGroup = document.getElementById('AddLineGroup');
+        if (addGroup.className == "hidden") {
+            addGroup.className = '';
+            $('#narLineTextArea').focus();
+        }
+        else
+            addGroup.className = "hidden";
+
+        var addBtn = document.getElementById('narAddLineBtn');
+        if (addBtn.value == "Add line")
+            addBtn.value = "Hide line entry";
+        else
+            addBtn.value = "Add line";
+    }
+
+    function tNotesAddlineBtn() {
+        var addGroup = document.getElementById('AddTNotesLineGroup');
+        if (addGroup.className == "hidden") {
+            addGroup.className = '';
+            $('#techLineTextArea').focus();
+        }
+        else
+            addGroup.className = "hidden";
+
+        var addBtn = document.getElementById('techAddLineBtn');
+        if (addBtn.value == "Add line")
+            addBtn.value = "Hide line entry";
+        else
+            addBtn.value = "Add line";
+    }
+
+    function partsAddlineBtn() {
+        var addGroup = document.getElementById('AddPartsGroup');
+        if (addGroup.className == "hidden") {
+            addGroup.className = '';
+            $('#partsDescriptionTextArea').focus();
+        }
+        else
+            addGroup.className = "hidden";
+
+        var addBtn = document.getElementById('partsAddLineBtn');
+        if (addBtn.value == "Add part")
+            addBtn.value = "Hide part entry";
+        else {
+            addBtn.value = "Add part";
+            $('#PartsErrorBox').addClass("hidden");
+        }
+    }
+
+    function ConfirmDeleteNarLineBtn(lineID) {
+        $.ajax({
+            url: '@Url.Action("DeleteNarrationLine", "jobs")',
+            type: 'POST',
+            dataType: "json",
+            data: { narID: lineID },
+            success: function (data) {
+                if (data.Success) {
+                    disableLineEditOptions("#nar");
+                    $('#narLineLI-' + lineID).remove();
+                    window.narEditing = true;
+                }
+            }
+        });
+    }
+
+    function ConfirmDeletePartLineBtn(lineID) {
+        $.ajax({
+            url: '@Url.Action("DeletePartLine", "jobs")',
+            type: 'POST',
+            dataType: "json",
+            data: { partID: lineID },
+            success: function (data) {
+                if (data.Success) {
+                    disablePartLineEditOptions();
+                    $('#partTextGroup-' + lineID).remove();
+                    window.partEditing = true;
+                }
+            }
+        });
+    }
+
+    function ConfirmDeleteTechLineBtn(lineID) {
+        $.ajax({
+            url: '@Url.Action("DeleteTechLine", "jobs")',
+            type: 'POST',
+            dataType: "json",
+            data: { techID: lineID },
+            success: function (data) {
+                if (data.Success) {
+                    disableLineEditOptions("#tech");
+                    $('#techLineLI-' + lineID).remove();
+                    window.techEditing = true;
+                }
+            }
+        });
+    }
+
+    function SaveEditedNarLineBtn(lineID) {
+        var lineTextArea = "#narLineTextArea-" + lineID;
+        $.ajax({
+            url: '@Url.Action("EditNarrationLine", "jobs")',
+            type: 'POST',
+            dataType: "json",
+            data: { narID: lineID, narLineText: $(lineTextArea).val() },
+            success: function (data) {
+                if (data.Success) {
+                    $('#narLineTextHolder-' + lineID).text($(lineTextArea).val());
+                    onCancelSaveLineClick(lineID, "#nar");
+                }
+            }
+        });
+    }
+
+    function SaveEditedTechLineBtn(lineID) {
+        var lineTextArea = "#techLineTextArea-" + lineID;
+        $.ajax({
+            url: '@Url.Action("EditTechLine", "jobs")',
+            type: 'POST',
+            dataType: "json",
+            data: { techID: lineID, techLineText: $(lineTextArea).val() },
+            success: function (data) {
+                if (data.Success) {
+                    $('#techLineTextHolder-' + lineID).text($(lineTextArea).val());
+                    onCancelSaveLineClick(lineID, "#tech");
+                }
+            }
+        });
+    }
+
+    function SaveLineBtn() {
+        $.ajax({
+            url: '@Url.Action("AddNarrationLine", "jobs")',
+            type: 'POST',
+            dataType: "json",
+            data: { jobID: '@Model.ID', narLineText: $('#narLineTextArea').val() },
+            success: function (data) {
+                if (data.Success) {
+                    $('#narList').append(
+                        '<li id="narLineLI-'+ data.newID +'" onclick="onLineClick('+ data.newID +', \'#nar\');">' +
+                        '<ul class="horlist2" >' +
+                            '<li id="narLineText-'+ data.newID +'">' +
+                                '<div id="narLineTextHolder-'+ data.newID +'">' +
+                                       $('#narLineTextArea').val() +
+                                '</div>' +
+                                '<div class="hidden" id="narLineTextEdit-'+ data.newID +'" >' +
+                                    '<table style="width: 90%; margin-left: 30px; text-align: center">' +
+                                        '<tr>' +
+                                            '<td style="width: 70%">' +
+                                                '<div class="narrative-textarea">' +
+                                                    '<textarea class="form-control" rows="2" id="narLineTextArea-'+ data.newID +'">' + $('#narLineTextArea').val() + '</textarea>' +
+                                                '</div>' +
+                                            '</td>' +
+                                            '<td>' +
+                                                '<input type="button" value="Save line" class="btn btn-info sizedButton" onclick="SaveEditedNarLineBtn('+ data.newID +');">' +
+                                            '</td>' +
+                                            '<td>' +
+                                                '<input type="button" value="Cancel" class="btn btn-warning sizedButton lineCancelBtn" onclick="onCancelSaveLineClick('+ data.newID +', \'#nar\');">' +
+                                            '</td> </tr> </table> </div> </li>' +
+                            '<li class="hidden floatRightCls" id="narLineOptions2-'+ data.newID +'">' +
+                                '<input type="button" value="Delete line" class="btn btn-warning lineDeleteBtn" onclick="onDeleteLineBtnClick('+ data.newID +', \'#nar\');">' +
+                            '</li>' +
+                            '<li class="hidden floatRightCls" id="narLineOptions-'+ data.newID +'">' +
+                                '<input type="button" value="Edit line" class="btn btn-info lineOptionsBtn" onclick="onEditLineClick('+ data.newID +', \'#nar\');">' +
+                            '</li>' +
+                            '<li class="hidden floatRightCls" id="narLineDeleteOptions-'+ data.newID +'">' +
+                                '<input type="button" value="Cancel" class="btn btn-warning lineDeleteBtn" onclick="onDeleteCancelBtnClick('+ data.newID +', \'#nar\');">' +
+                            '</li>' +
+                            '<li class="hidden floatRightCls" id="narLineDeleteOptions2-'+ data.newID +'">' +
+                                '<input type="button" value="Confirm delete" class="btn btn-info lineOptionsBtn" onclick="ConfirmDeleteNarLineBtn('+ data.newID +');">' +
+                            '</li> </ul> </li>'
+                            );
+
+                    $('#narLineTextArea').val("");
+                    $('#AddLineGroup').addClass("hidden");
+                    $('#narAddLineBtn').val("Add line");
+                }
+            }
+        });
+    }
+
+    function SaveTechLineBtn() {
+        $.ajax({
+            url: '@Url.Action("AddTechLine", "jobs")',
+            type: 'POST',
+            dataType: "json",
+            data: { jobID: '@Model.ID', techLineText: $('#techLineTextArea').val() },
+            success: function (data) {
+                if (data.Success) {
+                    $('#techList').append(
+                        '<li id="techLineLI-' + data.newID + '" onclick="onLineClick(' + data.newID + ', \'#tech\');">' +
+                        '<ul class="horlist2" >' +
+                            '<li id="techLineText-' + data.newID + '">' +
+                                '<div id="techLineTextHolder-' + data.newID + '">' +
+                                       $('#techLineTextArea').val() +
+                                '</div>' +
+                                '<div class="hidden" id="techLineTextEdit-' + data.newID + '" >' +
+                                    '<table style="width: 90%; margin-left: 30px; text-align: center">' +
+                                        '<tr>' +
+                                            '<td style="width: 70%">' +
+                                                '<div class="narrative-textarea">' +
+                                                    '<textarea class="form-control" rows="2" id="techLineTextArea-' + data.newID + '">' + $('#techLineTextArea').val() + '</textarea>' +
+                                                '</div>' +
+                                            '</td>' +
+                                            '<td>' +
+                                                '<input type="button" value="Save line" class="btn btn-info sizedButton" onclick="SaveEditedTechLineBtn(' + data.newID + ');">' +
+                                            '</td>' +
+                                            '<td>' +
+                                                '<input type="button" value="Cancel" class="btn btn-warning sizedButton lineCancelBtn" onclick="onCancelSaveLineClick(' + data.newID + ', \'#tech\');">' +
+                                            '</td> </tr> </table> </div> </li>' +
+                            '<li class="hidden floatRightCls" id="techLineOptions2-' + data.newID + '">' +
+                                '<input type="button" value="Delete line" class="btn btn-warning lineDeleteBtn" onclick="onDeleteLineBtnClick(' + data.newID + ', \'#tech\');">' +
+                            '</li>' +
+                            '<li class="hidden floatRightCls" id="techLineOptions-' + data.newID + '">' +
+                                '<input type="button" value="Edit line" class="btn btn-info lineOptionsBtn" onclick="onEditLineClick(' + data.newID + ', \'#tech\');">' +
+                            '</li>' +
+                            '<li class="hidden floatRightCls" id="techLineDeleteOptions-' + data.newID + '">' +
+                                '<input type="button" value="Cancel" class="btn btn-warning lineDeleteBtn" onclick="onDeleteCancelBtnClick(' + data.newID + ', \'#tech\');">' +
+                            '</li>' +
+                            '<li class="hidden floatRightCls" id="techLineDeleteOptions2-' + data.newID + '">' +
+                                '<input type="button" value="Confirm delete" class="btn btn-info lineOptionsBtn" onclick="ConfirmDeleteTechLineBtn(' + data.newID + ');">' +
+                            '</li> </ul> </li>'
+                            );
+
+                    $('#techLineTextArea').val("");
+                    $('#AddTNotesLineGroup').addClass("hidden");
+                    $('#techAddLineBtn').val("Add line");
+                }
+            }
+        });
+    }
+
+    function SavePartBtn() {
+        $.ajax({
+            url: '@Url.Action("AddPart", "jobs")',
+            type: 'POST',
+            dataType: "json",
+            data: { jobID: '@Model.ID', partDescription: $('#partsDescriptionTextArea').val(), quantity: $('#PartsQuantity').val(), originalPrice: $('#PartsPrice').val() },
+            success: function (data) {
+                if (data.Success) {
+                    $('#partsTable').append(
+                        '<tr style="text-indent: 1em;" id="partTextGroup-' + data.newID + '" onclick="onPartLineClick(' + data.newID + ');">' +
+                        '<td>' + $('#partsDescriptionTextArea').val() + '</td>' +
+                        '<td>' + $('#PartsQuantity').val() + '</td>' +
+                        '<td>' + $('#PartsPrice').val() + '</td>' +
+                        '<td class="hidden floatRightCls" id="partLineOptions-' + data.newID + '">' +
+                            '<input type="button" value="Delete line" class="btn btn-warning lineDeleteBtn" onclick="onDeletePartBtnClick(' + data.newID + ');">' +
+                        '</td>' +
+                        '<td class="hidden floatRightCls" id="partLineDeleteOptions-' + data.newID + '">' +
+                            '<input type="button" value="Cancel" class="btn btn-warning lineDeleteBtn" onclick="onDeletePartCancelBtnClick();">' +
+                        '</td>' +
+                        '<td class="hidden floatRightCls" id="partLineDeleteOptions2-' + data.newID + '">' +
+                            '<input type="button" value="Confirm delete" class="btn btn-info lineOptionsBtn" onclick="ConfirmDeletePartLineBtn(' + data.newID + ');">' +
+                        '</td>' +
+                    '</tr>'
+                    );
+                    
+                    $('#AddPartsGroup').appendTo('#partsTable');
+                    $('#partsDescriptionTextArea').val("");
+                    $('#PartsQuantity').val("");
+                    $('#PartsPrice').val("");
+                    $('#AddPartsGroup').addClass("hidden");
+                    $('#partsAddLineBtn').val("Add part");
+
+                    $('#PartsErrorBox').removeClass("partsError");
+                    $('#PartsErrorBox').addClass("hidden");
+                    $('#PartsErrorBox').text("");
+                }
+                else {
+                    $('#PartsErrorBox').removeClass("hidden");
+                    $('#PartsErrorBox').addClass("partsError");
+                    $('#PartsErrorBox').text(data.error);
+                }
+            }
+        });
+    }
+</script>

@@ -1,0 +1,50 @@
+﻿@model WebBilling.Models.Job
+
+@{
+    ViewBag.Title = "Billing Info";
+}
+
+<h2>Billing Info</h2>
+
+    <div class="form-horizontal text18Size">
+
+        <hr />
+
+        <div class="form-group">
+            <textarea readonly rows="20" style="width: 100%">
+@ViewBag.billingInfo
+            </textarea>
+        </div>
+    @if (!Model.wasBilled && !Model.inProgress && (LDAPHelper.UserIsMemberOfGroup("Admins") || LDAPHelper.UserIsMemberOfGroup("Boss")))
+    { 
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="button" value="Finish Billing" class="btn btn-info sizedButton floatRightCls" onclick="confirmFinish();" />
+            </div>
+        </div>
+    }
+    </div>
+
+<div>
+    @Html.ActionLink("Back to List", "Index", new { type = ViewBag.type })
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+<script>
+    function confirmFinish() {
+        $.ajax({
+            url: '@Url.Action("BillInfoFinish", "jobs")',
+            type: 'POST',
+            dataType: "json",
+            data: { jobID: '@Model.ID' },
+            success: function (response) {
+                if (response.redirect) {
+                    window.location.href = response.redirect;
+                }
+            }
+        });
+    }
+</script>

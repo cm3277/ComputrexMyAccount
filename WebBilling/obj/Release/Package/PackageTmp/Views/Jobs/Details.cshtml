@@ -1,0 +1,74 @@
+﻿@model WebBilling.Models.Job
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Job</h4>
+	<hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Customer.name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Customer.name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.startingTech)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.startingTech)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.startTime)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.startTime)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.endTime)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.endTime)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Customer.businessPricing)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Customer.businessPricing)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.totalPrice)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.totalPrice)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.inProgress)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.inProgress)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.ID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

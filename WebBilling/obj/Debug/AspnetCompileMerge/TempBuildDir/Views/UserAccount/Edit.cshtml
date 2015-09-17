@@ -1,0 +1,86 @@
+﻿@model WebInvoicing.Models.UserAccount
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit Account</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal text18Size">
+ 
+        <hr />
+        @Html.ValidationSummary(true)
+        @Html.HiddenFor(model => model.userName)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.userName, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Model.userName
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.hashPassword, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.PasswordFor(model => model.hashPassword, new { @id = "firstPassword", @oninput = "checkPassword()" })
+                @Html.ValidationMessageFor(model => model.hashPassword)
+            </div>
+        </div>
+
+        <!--Password Double Check-->
+        <div class="form-group">
+            @Html.Label("Confirm password", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <input type="password" name="password" id="confirmPass" oninput="checkPassword()">
+            </div>
+        </div>
+
+        <div class="form-group hidden" id="passError">
+            @Html.Label(" ", new { @class = "control-label col-md-2" })
+            <div class="col-md-10" style="color: #ff0000">
+                Passwords do not match!
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.permissionGroup, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <select id="permissionGroup" name="permissionGroup">
+                    <option value=""></option>
+                    <option value="Admins">Admins</option>
+                    <option value="Customer">Customer</option>
+                </select>
+                @Html.ValidationMessageFor(model => model.permissionGroup)
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" id="submitBtn" value="Save" class="btn btn-info sizedButton"  />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+<script>
+
+    function checkPassword() {
+        if ($('#firstPassword').val() == $('#confirmPass').val()) {
+            $('#passError').addClass("hidden");
+            $('#submitBtn').prop('disabled', false);
+        }
+        else {
+            $('#passError').removeClass("hidden");
+            $('#submitBtn').prop('disabled', true);
+        }
+    }
+
+</script>

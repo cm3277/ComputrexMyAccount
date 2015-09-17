@@ -1,0 +1,118 @@
+﻿@using WebBilling.Models
+@model LoginModel
+@{
+    ViewBag.Title = "Log in";
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+<h2>@ViewBag.Title.</h2>
+<div class="row">
+    <div class="col-md-8 text18Size">
+        <section id="loginForm">
+            @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @id = "loginForm", @class = "form-horizontal", role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                <h4>Use a local account to log in.</h4>
+                <hr />
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    @Html.LabelFor(m => m.UserName, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.UserName, new { @style = "margin-bottom: 25px;", @class = "form-control", @id = "userField" })
+                        @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Password, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.PasswordFor(m => m.Password, new { @style = "margin-bottom: 25px;",  @class = "form-control", @id = "passField" })
+                        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+            <div class="form-group hidden">
+                
+                <div class="col-md-10">
+                    <input class="form-control hidden" data-val="true" id="timeField" name="time" style="margin-bottom: 25px;" type="text" value="" />
+                </div>
+            </div>
+                
+                <div class="form-group hidden" id="loginErrorBox">
+                    @Html.Label(" ", new { @class = "control-label col-md-2" })
+                    <div class="col-md-10" style="color: #ff0000" id="loginErrorText">
+                    
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" id="loginBtn" value="Log in" class="btn btn-info sizedButton" />
+                    </div>
+                </div>
+            }
+        </section>
+    </div>
+</div>
+<script type="text/javascript" src="@Url.Content("~/Scripts/sha256.js")"></script>
+
+<script>
+
+    var doLogin = function () {
+        // your code here
+   
+        var time = new Date().getTime();
+        var toHash = "Web_Billing" + time + $('#passField').val();
+        var hash = Sha256.hash(toHash).toString();
+
+        //$('#passField').val(hash);
+        //$('#timeField').val(time);
+
+        //var theForm = document.getElementById('loginForm');
+        
+        $.ajax({
+            url: '@Url.Action("Login", "TechAccount")',
+            type: 'POST',
+            dataType: "json",
+            data: { userName: $('#userField').val(), time: time, hash: hash },
+            success: function (data) {
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
+                else if (data.error)
+                {
+                    $('#loginErrorBox').removeClass("hidden");
+                    $('#loginErrorText').text(data.error);
+                    $('#loginBtn').removeAttr('disabled');
+                }
+            }
+        });
+    };
+
+    var formAction = function () {
+        var theForm = document.getElementById('loginForm');
+        if (theForm.addEventListener)
+        {
+            theForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                doLogin();
+            });
+        }
+        else if (theForm.attachEvent)
+        {
+            theForm.attachEvent('onsubmit', function (event) {
+                event.preventDefault();
+
+                doLogin();
+            });
+        }
+        /*$("#loginForm").submit(function (event) {
+            event.preventDefault();
+            doLogin();
+        });*/
+    }();
+
+</script>

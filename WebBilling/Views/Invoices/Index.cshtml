@@ -1,0 +1,131 @@
+﻿@model IEnumerable<WebInvoicing.Models.Invoices>
+@using Microsoft.AspNet.Identity
+
+@{
+    ViewBag.Title = "Invoices";
+}
+
+@if (!LDAPHelper.UserIsMemberOfGroup("Customer"))
+{
+    <h2>Invoices</h2>
+}
+else
+{
+    <h2>@Html.Raw(User.Identity.GetUserName())'s invoices</h2>
+}
+
+<p>
+    <table style="width: 90%; min-width: 630px;">
+        <tr>
+            <td>
+                @if (LDAPHelper.UserIsMemberOfGroup("Boss") || LDAPHelper.UserIsMemberOfGroup("Admins"))
+                {
+                    <button class="btn btn-success sizedButton invoiceTableIndexBtn" onclick="location.href='@Url.Action("Create", "Invoices")';return false;">Create New Invoice</button>
+                }
+            </td>
+            @if (LDAPHelper.UserIsMemberOfGroup("Customer"))
+            {
+             
+            <td>
+                @if (ViewBag.time == null)
+                {
+                    @Html.ActionLink("Past 3 Months", "Index", new { }, new { @class = "a-InvoiceTypesSelected" });
+                }
+                else
+                {
+                    @Html.ActionLink("Past 3 Months", "Index", new { }, new { @class = "a-InvoiceTypes" });
+                }
+            </td>
+            <td>
+                @if (ViewBag.time != null)
+                {
+                    @Html.ActionLink("All Time", "Index", new { time = "all" }, new { @class = "a-InvoiceTypesSelected" })
+                }
+                else
+                {
+                    @Html.ActionLink("All Time", "Index", new { time = "all" }, new { @class = "a-InvoiceTypes" })
+                }
+            </td>
+            }
+        </tr>
+    </table>
+</p>
+<table class="table text18Size" style="min-width: 700px;">
+    <tr>
+        @if (!LDAPHelper.UserIsMemberOfGroup("Customer"))
+        { 
+            <th>
+                @Html.DisplayNameFor(model => model.customerID)
+            </th>
+        }
+        <th>
+            PDF File
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.date)
+        </th>
+        @if (LDAPHelper.UserIsMemberOfGroup("Customer"))
+        { 
+            <th>
+                @Html.DisplayNameFor(model => model.paid)
+            </th>
+        }
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        @if (!LDAPHelper.UserIsMemberOfGroup("Customer"))
+        {
+            <td>
+                @Html.DisplayFor(modelItem => item.customerID)
+            </td>
+        }
+        <td>
+            @Html.ActionLink("View Invoice", "PDFFile", new { id = item.ID }, new { target = "_blank" })
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.date)
+        </td>
+        @if (LDAPHelper.UserIsMemberOfGroup("Customer"))
+        {
+            <td>
+                <input class="check-box" data-val="true" name="item.paid" checked="@item.paid" type="checkbox" onchange="changePaid(this, @item.ID); return false;">
+            </td>
+        }
+        <td>
+            @if (LDAPHelper.UserIsMemberOfGroup("Boss") || LDAPHelper.UserIsMemberOfGroup("Admins"))
+            {
+                
+                @Html.ActionLink("Delete", "Delete", new { id=item.ID })
+            }
+        </td>
+    </tr>
+}
+
+</table>
+
+<script>
+
+    function changePaid(box, id) {
+
+        $.ajax({
+            url: '@Url.Action("ChangePaid", "Invoices")',
+            type: 'POST',
+            dataType: "json",
+            data: { id: id, value: $(box).is(':checked') },
+            success: function (data) {
+                if (data.Success) {
+                    
+                }
+            }
+        });
+    }
+
+</script>
